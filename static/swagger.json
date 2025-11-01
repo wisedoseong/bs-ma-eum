@@ -1,0 +1,353 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Ma-eum API",
+    "description": "Google Gemini AI를 활용한 텍스트 및 이미지 생성 API",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Ma-eum Support"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://your-domain.com",
+      "description": "Production"
+    },
+    {
+      "url": "http://localhost:5173",
+      "description": "Development"
+    }
+  ],
+  "paths": {
+    "/api/text-generate": {
+      "post": {
+        "summary": "텍스트 생성",
+        "description": "주어진 조건으로 텍스트를 생성합니다",
+        "tags": ["Text Generation"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                    "type": "object",
+                    "description": "생성(상장, 일기 등) 시에는 'keywords'가, 수정(오타수정, 글수정) 시에는 'originalText'가 필수입니다. '오타수정'을 제외한 모든 타입에 'writingStyle'이 필수입니다.",
+                    "required": ["docType", "apiKey"],
+                    "properties": {
+                      "docType": {
+                        "type": "string",
+                        "enum": ["상장", "일기", "보고서", "문서", "메일작성", "오타수정", "글수정", "블로그 글 작성", "광고 문구 생성"],
+                        "description": "문서 타입"
+                      },
+                      "keywords": {
+                        "type": "string",
+                        "description": "생성 타입일 경우 사용할 키워드",
+                        "example": "#회의 일정 조율"
+                      },
+                      "originalText": {
+                        "type": "string",
+                        "description": "수정 타입일 경우 사용할 원본 텍스트",
+                        "example": "오늘 날씨가 참 조았다."
+                      },
+                      "writingStyle": {
+                        "type": "string",
+                        "description": "작문 스타일 ('오타수정' 제외)",
+                        "example": "근엄하게"
+                      },
+                      "customPrompt": {
+                        "type": "string",
+                        "description": "커스텀 프롬프트 (선택사항)"
+                      },
+                      "apiKey": {
+                        "type": "string",
+                        "description": "Google Gemini API 키"
+                      }
+                    }
+                  }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string"
+                        },
+                        "content": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청"
+          },
+          "401": {
+            "description": "인증 실패"
+          },
+          "429": {
+            "description": "API 쿼터 초과"
+          },
+          "500": {
+            "description": "서버 오류"
+          }
+        }
+      },
+      "get": {
+        "summary": "API 정보 조회",
+        "description": "이 API의 정보와 예제를 조회합니다",
+        "tags": ["Documentation"],
+        "responses": {
+          "200": {
+            "description": "API 정보"
+          }
+        }
+      }
+    },
+    "/api/image-generate": {
+      "post": {
+        "summary": "이미지 생성",
+        "description": "주어진 텍스트로 이미지를 생성합니다 (2-Step 프로세스)",
+        "tags": ["Image Generation"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["textTitle", "textContent", "keywords", "imageStyle", "apiKey"],
+                "properties": {
+                  "textTitle": {
+                    "type": "string",
+                    "description": "생성된 텍스트의 제목",
+                    "example": "감사의 마음"
+                  },
+                  "textContent": {
+                    "type": "string",
+                    "description": "생성된 텍스트의 내용"
+                  },
+                  "keywords": {
+                    "type": "string",
+                    "description": "키워드",
+                    "example": "#고마워, #사랑해"
+                  },
+                  "imageStyle": {
+                    "type": "string",
+                    "description": "이미지 스타일",
+                    "example": "수채화 (Watercolor)"
+                  },
+                  "customPrompt": {
+                    "type": "string",
+                    "description": "커스텀 프롬프트 (선택사항)"
+                  },
+                  "apiKey": {
+                    "type": "string",
+                    "description": "Google Gemini API 키"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "base64Image": {
+                          "type": "string",
+                          "description": "Base64 인코딩된 이미지"
+                        },
+                        "mimeType": {
+                          "type": "string",
+                          "description": "이미지 MIME 타입"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청"
+          },
+          "401": {
+            "description": "인증 실패"
+          },
+          "429": {
+            "description": "API 쿼터 초과"
+          },
+          "500": {
+            "description": "서버 오류"
+          }
+        }
+      },
+      "get": {
+        "summary": "API 정보 조회",
+        "description": "이 API의 정보와 예제를 조회합니다",
+        "tags": ["Documentation"],
+        "responses": {
+          "200": {
+            "description": "API 정보"
+          }
+        }
+      }
+    },
+    "/api/generate": {
+      "post": {
+        "summary": "텍스트 + 이미지 생성 (통합)",
+        "description": "텍스트와 이미지를 한 번에 생성합니다 (권장)",
+        "tags": ["Unified API"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["docType", "keywords", "writingStyle", "imageStyle", "apiKey"],
+                "properties": {
+                  "docType": {
+                    "type": "string",
+                    "enum": ["상장", "일기", "보고서", "문서", "메일작성", "블로그 글 작성", "광고 문구 생성"],
+                    "description": "문서 타입"
+                  },
+                  "keywords": {
+                    "type": "string",
+                    "description": "키워드",
+                    "example": "#고마워, #사랑해"
+                  },
+                  "writingStyle": {
+                    "type": "string",
+                    "description": "작문 스타일",
+                    "example": "근엄하게"
+                  },
+                  "imageStyle": {
+                    "type": "string",
+                    "description": "이미지 스타일",
+                    "example": "수채화 (Watercolor)"
+                  },
+                  "customPrompt": {
+                    "type": "string",
+                    "description": "커스텀 프롬프트 (선택사항)"
+                  },
+                  "apiKey": {
+                    "type": "string",
+                    "description": "Google Gemini API 키"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "text": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string"
+                            },
+                            "content": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "image": {
+                          "type": "object",
+                          "properties": {
+                            "base64Image": {
+                              "type": "string"
+                            },
+                            "mimeType": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청"
+          },
+          "401": {
+            "description": "인증 실패"
+          },
+          "429": {
+            "description": "API 쿼터 초과"
+          },
+          "500": {
+            "description": "서버 오류"
+          }
+        }
+      },
+      "get": {
+        "summary": "API 정보 조회",
+        "description": "이 API의 정보와 예제를 조회합니다",
+        "tags": ["Documentation"],
+        "responses": {
+          "200": {
+            "description": "API 정보"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Text Generation",
+      "description": "텍스트 생성 API"
+    },
+    {
+      "name": "Image Generation",
+      "description": "이미지 생성 API"
+    },
+    {
+      "name": "Unified API",
+      "description": "통합 API (텍스트 + 이미지)"
+    },
+    {
+      "name": "Documentation",
+      "description": "API 문서"
+    }
+  ]
+}
