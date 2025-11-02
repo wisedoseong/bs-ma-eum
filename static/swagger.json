@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Ma-eum API",
-    "description": "Google Gemini AI를 활용한 텍스트 및 이미지 생성 API",
+    "description": "AI를 활용한 텍스트 및 이미지 생성 API",
     "version": "1.0.0",
     "contact": {
       "name": "Ma-eum Support"
@@ -10,7 +10,7 @@
   },
   "servers": [
     {
-      "url": "https://your-domain.com",
+      "url": "https://ma-eum.fixpl.net",
       "description": "Production"
     },
     {
